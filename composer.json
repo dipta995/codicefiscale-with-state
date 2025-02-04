@@ -1,0 +1,58 @@
+{
+    "name": "dipta995/laravel-codicefiscale",
+    "description": "A Laravel package for codice fiscale functionalities",
+    "keywords": [
+        "dipta995",
+        "laravel-codicefiscale"
+    ],
+    "homepage": "https://github.com/dipta995/laravel-codicefiscale",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Dipta Dey",
+            "email": "dipta@mxsolutions.it",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4 | ^8.0",
+        "laravel/framework": "^6.0 | ^7.0 | ^8.0 | ^9.0",
+        "illuminate/support": "^7.0 | ^8.0 | ^9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0 | ^5.0 | ^6.0 | ^7.0",
+        "phpunit/phpunit": "^7.5 | ^8.0 | ^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dipta995\\LaravelCodiceFiscale\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dipta995\\LaravelCodiceFiscale\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dipta995\\LaravelCodiceFiscale\\LaravelCodiceFiscaleServiceProvider"
+            ],
+            "aliases": {
+                "CodiceFiscale": "Dipta995\\LaravelCodiceFiscale\\Facades\\CodiceFiscale"
+            }
+        }
+    }
+}
