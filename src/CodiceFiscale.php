@@ -39,7 +39,7 @@ class CodiceFiscale
      * @param mixed $placeCode
      * @return array
      */
-    public static function generateCodiceFiscale($surname, $name, $dob, $gender, $placeCode)
+    public static function generateCodiceFiscale($surname, $name, $dob, $gender, $placeCode, $withvalidation = null)
     {
         $surnameCode = self::extractCode($surname);
         $nameCode = self::extractCode($name, true);
@@ -47,8 +47,17 @@ class CodiceFiscale
 
         $partialCode = strtoupper($surnameCode . $nameCode . $dobCode . $placeCode);
         $controlChar = self::getControlCharacter($partialCode);
+        if ($withvalidation != null || $withvalidation != false) {
+            $checkValidation = self::validateFiscalCode($partialCode . $controlChar);
+            if ($checkValidation['success']) {
+                return $partialCode . $controlChar;
+            } else {
+                return $checkValidation;
+            }
+        } else {
+            return $partialCode . $controlChar;
+        }
 
-        return $partialCode . $controlChar;
     }
 
     private static function extractCode($string, $isName = false)
@@ -84,21 +93,21 @@ class CodiceFiscale
     {
         // Values for odd and even positions
         $oddValues = [
-            '0' => 1,  '1' => 0,  '2' => 5,  '3' => 7,  '4' => 9,
+            '0' => 1, '1' => 0, '2' => 5, '3' => 7, '4' => 9,
             '5' => 13, '6' => 15, '7' => 17, '8' => 19, '9' => 21,
-            'A' => 1,  'B' => 0,  'C' => 5,  'D' => 7,  'E' => 9,
+            'A' => 1, 'B' => 0, 'C' => 5, 'D' => 7, 'E' => 9,
             'F' => 13, 'G' => 15, 'H' => 17, 'I' => 19, 'J' => 21,
-            'K' => 2,  'L' => 4,  'M' => 18, 'N' => 20, 'O' => 11,
-            'P' => 3,  'Q' => 6,  'R' => 8,  'S' => 12, 'T' => 14,
+            'K' => 2, 'L' => 4, 'M' => 18, 'N' => 20, 'O' => 11,
+            'P' => 3, 'Q' => 6, 'R' => 8, 'S' => 12, 'T' => 14,
             'U' => 16, 'V' => 10, 'W' => 22, 'X' => 25, 'Y' => 24,
             'Z' => 23
         ];
 
         $evenValues = [
-            '0' => 0,  '1' => 1,  '2' => 2,  '3' => 3,  '4' => 4,
-            '5' => 5,  '6' => 6,  '7' => 7,  '8' => 8,  '9' => 9,
-            'A' => 0,  'B' => 1,  'C' => 2,  'D' => 3,  'E' => 4,
-            'F' => 5,  'G' => 6,  'H' => 7,  'I' => 8,  'J' => 9,
+            '0' => 0, '1' => 1, '2' => 2, '3' => 3, '4' => 4,
+            '5' => 5, '6' => 6, '7' => 7, '8' => 8, '9' => 9,
+            'A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4,
+            'F' => 5, 'G' => 6, 'H' => 7, 'I' => 8, 'J' => 9,
             'K' => 10, 'L' => 11, 'M' => 12, 'N' => 13, 'O' => 14,
             'P' => 15, 'Q' => 16, 'R' => 17, 'S' => 18, 'T' => 19,
             'U' => 20, 'V' => 21, 'W' => 22, 'X' => 23, 'Y' => 24,
@@ -117,5 +126,39 @@ class CodiceFiscale
 
         $controlChar = chr(($sum % 26) + ord('A'));
         return $controlChar;
+    }
+
+    /**
+     * Validate the Italian Fiscal Code (Codice Fiscale).
+     */
+    public static function validateFiscalCode(string $fiscalCode): array
+    {
+        $errors = [];
+        $instance = new self();
+        $stateData = $instance->getJsonData();
+
+        // Step 1: Check if Fiscal Code is NOT NULL
+        if (empty($fiscalCode)) {
+            $errors[] = 'Fiscal code is required.';
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        // Step 2: Validate Fiscal Code Format (Assuming 16 characters alphanumeric)
+        if (!preg_match('/^[A-Z0-9]{16}$/i', $fiscalCode)) {
+            $errors[] = 'Invalid fiscal code format.';
+        }
+
+        // Step 3: Validate State from data.json
+        $codiceCatastale = substr($fiscalCode, 11, 4);
+        $allCodes = array_column($stateData, 'codice_catastale');
+
+        if (!in_array($codiceCatastale, $allCodes)) {
+            $errors[] = 'Invalid codice Fiscal ! state does not exist.';
+        }
+
+        return [
+            'success' => empty($errors),
+            'errors' => $errors,
+        ];
     }
 }
