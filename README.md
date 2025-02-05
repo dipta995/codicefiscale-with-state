@@ -37,19 +37,27 @@ php artisan config:clear
 
 ### 1️⃣ Fetch JSON Data in Controller
 
+Example For ROME:
+```php
+{
+  "surname": "Rossi",
+  "name": "Mario",
+  "dob": "1985-07-15",
+  "gender": "M",
+  "placeCode": "H501" 
+}
+````
+
 ```php
 use CodiceFiscale;
+//Check Validation
+CodiceFiscale::validateFiscalCode($jsonData);
+//Fetch All states
+$jsonData = CodiceFiscale::getJsonData();
+//Generate Fiscal Code with State validation or without validation
+// using true as 6th param that is not mandatory
+CodiceFiscale::generateCodiceFiscale($surname, $name, $dob, $gender, $placeCode,true);
 
-public function create() {
-    $jsonData = CodiceFiscale::getJsonData();
-    return view('create', compact('jsonData'));
-}
-
-
-public function generateCodiceFiscal($surname, $name, $dob, $gender, $placeCode){
- $codice = CodiceFiscale::generateCodiceFiscale($surname, $name, $dob, $gender, $placeCode);
- return view('view-codice-fiscale', compact('jsonData'));
-}
 ```
 
 ### 2️⃣ Display JSON Data in Blade
@@ -60,31 +68,6 @@ public function generateCodiceFiscal($surname, $name, $dob, $gender, $placeCode)
 @endforeach
 ```
 
-### 3️⃣ Use Function with 5 Parameters (Dob must be Y-m-d)
-
-Example For ROME:
-```php
-{
-  "surname": "Rossi",
-  "name": "Mario",
-  "dob": "1985-07-15",
-  "gender": "M",
-  "placeCode": "H501" 
-}
-
-```
-
-
-```php
-use CodiceFiscale;
-
-public function process(Request $request) {
-    $result = CodiceFiscale::processData(generateCodiceFiscale($request->surname, $request->name, $request->dob, $request->gender, $request->placeCode));
-    return response()->json($result);
-}
-```
-
----
 
 ## ✅ Done!
 Your package is ready to use.
